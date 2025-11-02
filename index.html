@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting...</title>
+</head>
+<body>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const target = params.get("target");
+  if(target){
+    // Яндекс.Метрика — поставь свой счетчик и ID цели
+    if(window.ym) ym(105088696, 'reachGoal', 'redirect', Object.fromEntries(params.entries()));
+
+    // Редирект через 250ms, чтобы цель успела отправиться
+    setTimeout(()=> {
+      let url = decodeURIComponent(target);
+      params.forEach((v,k) => { if(k!=='target') url += (url.includes('?') ? '&' : '?') + k + '=' + encodeURIComponent(v); });
+      window.location.href = url;
+    }, 250);
+  } else {
+    document.body.innerText = "No target URL provided!";
+  }
+</script>
+<p>Redirecting...</p>
+</body>
+</html>
