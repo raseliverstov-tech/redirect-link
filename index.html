@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
   if (!target) return;
   
   // Отправляем UTMs в Я.Метрику (105088696 — твой счетчик)
-  if (window.ym) ym(105088696, 'reachGoal', 'redirect', Object.fromEntries(params.entries()));
+  if (window.ym) ym(105090249, 'reachGoal', 'redirect', Object.fromEntries(params.entries()));
 
   // Редирект через 300 мс
   setTimeout(() => window.location.replace(decodeURIComponent(target)), 300);
