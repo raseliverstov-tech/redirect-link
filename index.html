@@ -1,27 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Redirecting...</title>
+<meta charset="UTF-8">
+<title>Redirect...</title>
+<script src="https://mc.yandex.ru/metrika/tag.js" type="text/javascript"></script>
 </head>
 <body>
 <script>
+document.addEventListener("DOMContentLoaded", function() {
   const params = new URLSearchParams(window.location.search);
   const target = params.get("target");
-  if(target){
-    // Яндекс.Метрика — поставь свой счетчик и ID цели
-    if(window.ym) ym(105088696, 'reachGoal', 'redirect', Object.fromEntries(params.entries()));
+  if (!target) return;
+  
+  // Отправляем UTMs в Я.Метрику (105088696 — твой счетчик)
+  if (window.ym) ym(105088696, 'reachGoal', 'redirect', Object.fromEntries(params.entries()));
 
-    // Редирект через 250ms, чтобы цель успела отправиться
-    setTimeout(()=> {
-      let url = decodeURIComponent(target);
-      params.forEach((v,k) => { if(k!=='target') url += (url.includes('?') ? '&' : '?') + k + '=' + encodeURIComponent(v); });
-      window.location.href = url;
-    }, 250);
-  } else {
-    document.body.innerText = "No target URL provided!";
-  }
+  // Редирект через 300 мс
+  setTimeout(() => window.location.replace(decodeURIComponent(target)), 300);
+});
 </script>
-<p>Redirecting...</p>
 </body>
 </html>
