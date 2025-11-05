@@ -1,20 +1,24 @@
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request))
-})
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const target = url.searchParams.get('target');
 
-async function handleRequest(request) {
-  const url = new URL(request.url)
-  const target = url.searchParams.get('target')
-  if (!target) return new Response('Missing target', { status: 400 })
+    if (!target) {
+      return new Response('❌ No target URL provided', { status: 400 });
+    }
 
-  // Формируем ссылку для Яндекс.Метрики
-  const ymCounter = 105090249  // Твой счётчик Метрики
-  const ymUrl = `https://mc.yandex.ru/watch/${ymCounter}?ut=${encodeURIComponent(request.url)}`
+    // Собираем все UTM и другие параметры кроме target
+    const params = new URLSearchParams();
+    url.searchParams.forEach((v, k) => {
+      if (k !== 'target') params.set(k, v);
+    });
 
-  // Отправка hit в Метрику (fire-and-forget)
-  fetch(ymUrl, { method: 'GET', mode: 'no-cors' })
+    const finalUrl = target + (params.toString() ? (target.includes('?') ? '&' : '?') + params.toString() : '');
 
-  // Мгновенный редирект на target
-  return Response.redirect(target, 302)
-}
+    // Можно добавить лог hit в Яндекс.Метрику через URL
+    // ym? Или через обычный redirect - МЕТРИКА фиксирует переход как GET
+    return Response.redirect(finalUrl, 302);
+  }
+};
+
 
