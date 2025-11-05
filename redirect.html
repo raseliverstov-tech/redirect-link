@@ -1,56 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Redirecting...</title>
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request))
+})
 
-<!-- Код счётчика Яндекс.Метрики -->
-<script type="text/javascript">
-(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-m[i].l=1*new Date();
-k=e.createElement(t),a=e.getElementsByTagName(t)[0],
-k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+async function handleRequest(request) {
+  const url = new URL(request.url)
+  const target = url.searchParams.get('target')
+  if (!target) return new Response('Missing target', { status: 400 })
 
-ym(105090249, "init", {
-     clickmap:true,
-     trackLinks:true,
-     accurateTrackBounce:true
-});
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/105090249" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Метрика -->
+  // Формируем ссылку для Яндекс.Метрики
+  const ymCounter = 105090249  // Твой счётчик Метрики
+  const ymUrl = `https://mc.yandex.ru/watch/${ymCounter}?ut=${encodeURIComponent(request.url)}`
 
-</head>
-<body>
-<script>
-document.addEventListener("DOMContentLoaded", function(){
-  const params = new URLSearchParams(location.search);
-  const target = params.get("target");
-  if(!target){ console.log("❌ no target"); return; }
+  // Отправка hit в Метрику (fire-and-forget)
+  fetch(ymUrl, { method: 'GET', mode: 'no-cors' })
 
-  // Собираем все параметры кроме target
-  const extra = [];
-  params.forEach((v,k)=>{ if(k!=="target") extra.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`); });
-  const finalUrl = decodeURIComponent(target) + (extra.length ? (decodeURIComponent(target).includes("?") ? "&" : "?") + extra.join("&") : "");
+  // Мгновенный редирект на target
+  return Response.redirect(target, 302)
+}
 
-  // Функция отправки hit и цели с повторной проверкой ym
-  function sendHit(){
-    if(window.ym){
-      try{
-        ym(105090249, 'hit', location.href);
-        ym(105090249, 'reachGoal', 'redirect', Object.fromEntries(params.entries()));
-        console.log("✅ Yandex.Metrika hit & goal sent");
-        setTimeout(()=> location.replace(finalUrl), 250);
-      }catch(e){ console.warn("ym error", e); setTimeout(sendHit, 50); }
-    } else {
-      console.log("⚠️ ym not found, retrying...");
-      setTimeout(sendHit, 1000);
-    }
-  }
-
-  sendHit();
-});
-</script>
-</body>
-</html>
