@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Redirect</title></head>
+<body>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  const params = new URLSearchParams(location.search);
+  const target = params.get("target");
+  if(!target){ console.log("no target"); return; }
+
+  // Собираем параметры UTM/все кроме target
+  const extra = [];
+  params.forEach((v,k)=>{ if(k!=="target") extra.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`); });
+  const url = decodeURIComponent(target) + (extra.length? (decodeURIComponent(target).includes("?") ? "&" : "?") + extra.join("&") : "");
+
+  // Отправляем в Яндекс.Метрику: сначала pageview, затем goal (если ym доступен)
+  if(window.ym){
+    try{
+      // 1) зафиксировать визит (hit) — чтобы в Источниках появилась UTM
+      ym(105090249, 'hit', location.href);
+      // 2) опционально — отправить цель redirect с параметрами
+      ym(105090249, 'reachGoal', 'redirect', Object.fromEntries(params.entries()));
+      console.log("ym: hit & goal sended");
+    } catch(e){ console.warn("ym error", e); }
+  } else {
+    console.log("ym not found");
+  }
+
+  // Небольшая задержка — 250ms (пользователь её почти не заметит)
+  setTimeout(()=> location.replace(url), 250);
+});
+</script>
+</body>
+</html>
