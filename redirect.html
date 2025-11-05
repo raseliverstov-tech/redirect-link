@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function(){
       }catch(e){ console.warn("ym error", e); setTimeout(sendHit, 50); }
     } else {
       console.log("⚠️ ym not found, retrying...");
-      setTimeout(sendHit, 50);
+      setTimeout(sendHit, 1000);
     }
   }
 
